@@ -1,0 +1,87 @@
+
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as ec
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+import Scraping
+import json
+from xlwt import Workbook, Formula
+url_base="https://www.marmiton.org/recettes/"
+driver = webdriver.Chrome()
+driver.get(url_base)
+def List_Type():
+    Type=driver.find_elements_by_xpath('//*[contains(concat( " ", @class, " " ), concat( " ", "recipe-flex-nav", " " ))]//a')
+    print(Type)
+    num_Type=len(Type)
+    list_Type=[]
+    for i in range(num_Type):
+         list_Type.append(Type[i].text)
+
+    list_Type.pop(0)
+    list_Type.pop(0)
+    return list_Type
+def List_Num():
+    numero= driver.find_elements_by_xpath('//*[contains(concat( " ", @class, " " ), concat( " ", "af-pagination", " " ))]//a')
+    end_num=numero[11].text
+    fastrack1 = WebDriverWait(driver, 10).until(ec.visibility_of_element_located((By.LINK_TEXT, end_num)))
+    fastrack1.click()
+    numero1 = driver.find_elements_by_xpath('//*[contains(concat( " ", @class, " " ), concat( " ", "af-pagination", " " ))]//a')
+    numFinal = int(numero1[2].text)
+
+    return numFinal
+def List_Link():
+    Link = driver.find_elements_by_xpath('//a[@class="recipe-card-link"]')
+    list_Link=[]
+    for i in range(len(Link)):
+        list_Link.append(Link[i].get_attribute('href'))
+    return  list_Link
+L3=List_Link()
+L1= List_Type()
+print(L1)
+
+for i in range(len(L1)):
+    num_final=List_Num()
+    fastrack = WebDriverWait(driver, 10).until(ec.visibility_of_element_located((By.LINK_TEXT, "<<")))
+    fastrack.click()
+    for j in range(num_final):
+        L3=List_Link()
+        for k in range(len(L3)):
+
+            recette = Scraping.Scrap_Page(L3[k])
+
+
+            f1 = json.dumps(recette,ensure_ascii=False, check_circular=True,indent=4,separators=(', ' , ': '))
+            f = open("dict.json", "a")
+            f.writelines(f1)
+            f.close()
+
+        fastrack1 = WebDriverWait(driver, 10).until(ec.visibility_of_element_located((By.LINK_TEXT,j)))
+
+        fastrack1.click()
+
+        # elem1 = driver.find_element_by_link_text(L2[j])
+        # driver.implicitly_wait(10)
+        # elem1.click()
+    fastrack2 = WebDriverWait(driver, 10).until(ec.visibility_of_element_located((By.LINK_TEXT, L1[i])))
+    fastrack2.click()
+    # elem2 = driver.find_element_by_link_text(L1[i])
+    # driver.implicitly_wait(5)
+    # elem2.click()
+
+#
+#
+#
+#
+# for i in range(len(list_Type)):
+#     elem = driver.find_element_by_link_text(list_Type[i])
+#     driver.implicitly_wait(5)
+#     elem.click()
+
+    # num = driver.find_elements_by_xpath('//*[contains(concat( " ", @class, " " ), concat( " ", "af-pagination", " " ))]//a')
+    # num_num=len(num)
+    # for j in range(num_num):
+    #     elem1 = driver.find_element_by_link_text(num[i].text)
+    #     elem1.click()
+
+
+
